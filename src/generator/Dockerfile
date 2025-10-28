@@ -12,4 +12,4 @@ RUN npm install --production
 COPY .. .
 
 # Start the generator
-CMD ["node", "index.js"]
+CMD ["node", "generator.js"]
