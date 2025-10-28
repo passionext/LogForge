@@ -1,0 +1,53 @@
+services:
+  api-management:
+    build: .
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/logs', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - docker-network
+    environment:
+      - NODE_ENV=production
+
+  generator-alfa:
+    build: ./generator
+    environment:
+      - API_URL=http://api-management:3000/logs
+    depends_on:
+      api-management:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - docker-network
+
+  generator-beta:
+    build: ./generator
+    environment:
+      - API_URL=http://apiManagement:3000/logs
+    depends_on:
+      api-management:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - docker-network
+
+  generator-delta:
+    build: ./generator
+    environment:
+      - API_URL=http://apiManagement:3000/logs
+    depends_on:
+      api-management:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - docker-network
+
+networks:
+  docker-network:
+    driver: bridge
