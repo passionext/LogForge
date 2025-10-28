@@ -118,7 +118,7 @@ app.post('/logs', (req, res) => {
 app.get('/logs', (req, res) => {
   // Extract query parameters from URL with default values
   // Example: /logs?level=error&source=payment-service&limit=20&offset=10
-  const { level, source, limit = 50, offset = 0 } = req.query;
+  const { level, source, limit = "50", offset = "0" } = req.query;
 
   // Start with all received logs
   let filteredLogs = receivedLogs;
@@ -163,89 +163,17 @@ app.get('/stats', (req, res) => {
   });
 });
 
-// Define GET endpoint for searching logs by message content
-app.get('/search', (req, res) => {
-  // Extract search query parameters
-  const { q, level } = req.query;
 
-  // Validate that search query is provided
-  if (!q) {
-    return res.status(400).json({ error: 'Query parameter "q" is required' });
-  }
-
-  // Start with all logs
-  let filteredLogs = receivedLogs;
-
-  // Optional: pre-filter by level before searching
-  if (level) {
-    filteredLogs = filteredLogs.filter(log => log.level === level);
-  }
-
-  // Perform case-insensitive search through log messages
-  const results = filteredLogs.filter(log =>
-    log.message.toLowerCase().includes(q.toLowerCase())
-  );
-
-  // Return search results with limit to prevent huge responses
-  res.json({
-    results: results.slice(0, 100), // Return only first 100 results
-    total: results.length            // But indicate total number found
-  });
-});
-
-// Define DELETE endpoint for clearing all logs (useful for testing)
-app.delete('/logs', (req, res) => {
-  // Store current count before clearing for response message
-  const count = receivedLogs.length;
-
-  // Clear logs array by setting length to 0 (more efficient than new array)
-  receivedLogs.length = 0;
-
-  // Reset all statistics to initial state
-  stats = {
-    totalReceived: 0,
-    byLevel: { debug: 0, info: 0, warn: 0, error: 0 },
-    lastReceived: null
-  };
-
-  // Send confirmation response
-  res.json({
-    message: `Cleared ${count} logs`,
-    cleared_at: new Date().toISOString()
-  });
-});
-
-// Define GET endpoint for health checks (used by monitoring systems)
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',              // Basic status indicator
-    timestamp: new Date().toISOString(), // Current server time
-    uptime: process.uptime(),       // How long server has been running (seconds)
-    memory: process.memoryUsage(),  // Detailed memory usage information
-    receivedLogs: receivedLogs.length // Current number of stored logs
-  });
-});
-
-// Define GET endpoint to generate and return a sample log (for testing)
-app.get('/sample-log', (req, res) => {
-  // Generate a realistic sample log using our log generator function
-  const sampleLog = createRealisticLog();
-  res.json(sampleLog);
-});
 
 // ==================== SERVER STARTUP ====================
 
 // Start the HTTP server and make it listen for incoming requests on specified port
 app.listen(PORT, () => {
   // This callback function executes once the server is successfully started
-  console.log(`🚀 Log API Server running on port ${PORT}`);
-  console.log(`📍 Available Endpoints:`);
+  console.log(`Log API Server running on port ${PORT}`);
+  console.log(`Available Endpoints:`);
   console.log(`   POST /logs        - Receive log entries`);
   console.log(`   GET  /logs        - List stored logs (with filtering & pagination)`);
   console.log(`   GET  /stats       - Get statistics and analytics`);
-  console.log(`   GET  /search      - Search logs by message content`);
-  console.log(`   GET  /health      - Health check for monitoring`);
-  console.log(`   DELETE /logs      - Clear all stored logs (testing)`);
-  console.log(`💾 Storage: In-memory (max 1000 logs)`);
+  console.log(`Storage: In-memory (max 1000 logs)`);
 });
-
