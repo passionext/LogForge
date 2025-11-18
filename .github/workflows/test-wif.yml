@@ -16,7 +16,7 @@ jobs:
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: "projects/862975059069/locations/global/workloadIdentityPools/githubTestPool/providers/github-provider"
+          workload_identity_provider: "projects/862975059069/locations/global/workloadIdentityPools/github-test-pool/providers/Github"
           service_account: "github-action-test-service-acc@crucial-weaver-477208-g7.iam.gserviceaccount.com"
 
       - name: Test gcloud
